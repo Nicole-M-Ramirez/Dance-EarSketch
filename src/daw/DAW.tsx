@@ -19,6 +19,7 @@ import { clearDAWHoverLine, setDAWHoverLine, setDAWPlayingLines } from "../ide/E
 import { selectPlayArrows, selectScriptMatchesDAW } from "../ide/ideState"
 import classNames from "classnames"
 import CatDanceAnimation from '../components/CatDanceAnimation'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 export const callbacks = {
     runScript: () => {},
@@ -967,6 +968,23 @@ const DancingStickFigure = () => {
     )
 }
 
+const PlaybackIndicator = () => {
+    const playing = useSelector(daw.selectPlaying)
+
+    
+    
+    return (
+        <div style={{ zIndex:3 }} className={`fixed top-4 right-4 transition-opacity duration-300 ${playing ? 'opacity-100' : 'opacity-0'}`}>
+            {/* <img src={require('../../public/img/triangle.png')} alt="Playback indicator" className="w-16 h-16" /> */}
+            <DotLottieReact
+                src="https://lottie.host/732a8fc4-9814-4308-944d-97bf4800120c/RJj7mf6kK5.lottie"
+                loop
+                autoplay
+            />
+        </div>
+    )
+}
+
 export const DAW = () => {
     const dispatch = useDispatch()
     const xScale = useSelector(daw.selectXScale)
@@ -1237,7 +1255,7 @@ export const DAW = () => {
         // Follow playback continuously if autoscroll is enabled
         if (autoScroll && (xScale(position) - xScroll) > (el.current.clientWidth - 115) / 2) {
             const fracX = (xScale(position) - (el.current.clientWidth - 115) / 2) / (el.current.scrollWidth - el.current.clientWidth)
-            xScrollEl.current.scrollLeft = fracX * (xScrollEl.current.scrollWidth - xScrollEl.current.clientWidth)
+            xScrollEl.current.scrollLeft = fracX * (el.current.scrollWidth - xScrollEl.current.clientWidth)
         }
     }
 
@@ -1272,6 +1290,7 @@ export const DAW = () => {
         <Header playPosition={playPosition} setPlayPosition={setPlayPosition}></Header>
         <CatDanceAnimation />
         <DancingStickFigure />
+        <PlaybackIndicator />
 
         {!hideDAW &&
         <div id="zoom-container" className="grow relative w-full h-full flex flex-col overflow-x-auto overflow-y-hidden z-0">

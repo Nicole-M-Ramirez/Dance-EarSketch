@@ -928,6 +928,45 @@ export function NumPrint(result: DAWData, number: number) {
     return number
 }
 
+// Function to display triangle.png when music is playing
+export function One(result: DAWData) {
+    const args = [...arguments].slice(1)
+    esconsole("Calling One function", ["debug", "PT"])
+
+    const triangleComponent = document.createElement('div')
+    triangleComponent.id = 'triangle-container'
+    triangleComponent.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+    `
+    
+    const triangleImage = document.createElement('img')
+    triangleImage.src = require('../../public/img/triangle.png')
+    triangleImage.style.width = '100px'
+    triangleImage.style.height = '100px'
+    triangleComponent.appendChild(triangleImage)
+    
+    document.body.appendChild(triangleComponent)
+
+    // Show/hide triangle based on playback state
+    const updateTriangleVisibility = () => {
+        const isPlaying = store.getState().daw.playing
+        triangleComponent.style.opacity = isPlaying ? '1' : '0'
+    }
+
+    // Initial visibility check
+    updateTriangleVisibility()
+
+    // Subscribe to state changes
+    store.subscribe(updateTriangleVisibility)
+
+    return result
+}
+
 const checkArgCount = (funcName: string, args: any[], required: number, total: number) => {
     const given = args.length
     if (given !== required && total === required) {

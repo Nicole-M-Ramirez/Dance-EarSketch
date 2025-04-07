@@ -19,6 +19,7 @@ export const API_FUNCTIONS = {
     makeBeat: { async: false, mod: true, return: false },
     rhythmEffects: { async: false, mod: true, return: false },
     setEffect: { async: false, mod: true, return: false },
+    One: { async: false, mod: true, return: false }, // Function to display triangle.png
     beat:{ async: false, mod: true, return: false}, //funcion que aga print 1 cada 3 beats
     NumPrint: { async: false, mod: false, return: true },
     // Return value, don't modify DAW data.

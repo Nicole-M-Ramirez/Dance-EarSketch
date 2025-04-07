@@ -1288,8 +1288,8 @@ export const DAW = () => {
         {hideEditor &&
         <div style={{ display: "block" }} className="embedded-script-info"> Script {embeddedScriptName} by {embeddedScriptUsername}</div>}
         <Header playPosition={playPosition} setPlayPosition={setPlayPosition}></Header>
-        <CatDanceAnimation />
-        <DancingStickFigure />
+        {/* <CatDanceAnimation />
+        <DancingStickFigure /> */}
         <PlaybackIndicator />
 
         {!hideDAW &&

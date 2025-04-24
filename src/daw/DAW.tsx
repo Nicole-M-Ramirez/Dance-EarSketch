@@ -21,6 +21,8 @@ import classNames from "classnames"
 import CatDanceAnimation from '../components/CatDanceAnimation'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
+import { selectTempoMap } from './dawState'
+
 export const callbacks = {
     runScript: () => {},
 }
@@ -971,18 +973,48 @@ const DancingStickFigure = () => {
 const PlaybackIndicator = () => {
     const playing = useSelector(daw.selectPlaying)
 
-    
-    
+    const tempoMap = useSelector(daw.selectTempoMap)
+    const playPosition = useSelector(daw.selectPlaying)
+    const currentTempo = tempoMap.getTempoAtMeasure(1)
+    //const playPosition = useSelector(daw.selectPlayPosition)
+    //const tempoAtCurrentPosition = tempoMap.getTempoAtMeasure(playPosition)
+    //console.log(playPosition)
+    //const baseTempo = 120
+    //const speedMultiplier = currentTempo / baseTempo
+
+    if(playing){
+
     return (
-        <div style={{ zIndex:3 }} className={`fixed top-4 right-4 transition-opacity duration-300 ${playing ? 'opacity-100' : 'opacity-0'}`}>
+     <div style={{ zIndex:3 }} className={`fixed top-4 right-4 transition-opacity duration-300 `}>
             {/* <img src={require('../../public/img/triangle.png')} alt="Playback indicator" className="w-16 h-16" /> */}
             <DotLottieReact
                 src="https://lottie.host/732a8fc4-9814-4308-944d-97bf4800120c/RJj7mf6kK5.lottie"
                 loop
                 autoplay
+                speed={currentTempo*0.01 * 1}
             />
         </div>
     )
+         
+    }
+    else{
+        return(<div></div>)
+
+    }
+
+    
+    
+    // return (
+    //     <div style={{ zIndex:3 }} className={`fixed top-4 right-4 transition-opacity duration-300 ${playing ? 'opacity-100' : 'opacity-0'}`}>
+    //         {/* <img src={require('../../public/img/triangle.png')} alt="Playback indicator" className="w-16 h-16" /> */}
+    //         <DotLottieReact
+    //             src="https://lottie.host/732a8fc4-9814-4308-944d-97bf4800120c/RJj7mf6kK5.lottie"
+    //             loop
+    //             autoplay
+    //             speed={1}
+    //         />
+    //     </div>
+    // )
 }
 
 export const DAW = () => {

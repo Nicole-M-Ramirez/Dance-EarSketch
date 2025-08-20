@@ -988,7 +988,7 @@ const PlaybackIndicator = () => {
      <div style={{ zIndex:3 }} className={`fixed top-4 right-4 transition-opacity duration-300 `}>
             {/* <img src={require('../../public/img/triangle.png')} alt="Playback indicator" className="w-16 h-16" /> */}
             <DotLottieReact
-                src="https://lottie.host/732a8fc4-9814-4308-944d-97bf4800120c/RJj7mf6kK5.lottie"
+                src="https://lottie.host/d695ad9f-bfc8-40e5-998f-e8294aaae860/zHaLvMjuSC.lottie"
                 loop
                 autoplay
                 speed={currentTempo*0.01 * 1}

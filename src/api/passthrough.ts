@@ -43,6 +43,9 @@ class InternalError extends Error {
 
 // Generate initial result object.
 export function init() {
+    cleanupTriangle()
+    cleanupDancer()
+    
     return {
         init: true,
         finish: false,
@@ -918,7 +921,7 @@ export function NumPrint(result: DAWData, number: number) {
     const tempoMap = new TempoMap(result)
 
     //const tempo = tempoMap.getTempoAtMeasure(measure)
-     println(result, tempoMap)
+     //println(result, tempoMap)
     // const args = [...arguments].slice(1)
     // esconsole("Calling NumPrint with parameters" + args.join(", "), ["debug", "PT"])
 
@@ -932,6 +935,9 @@ export function NumPrint(result: DAWData, number: number) {
 export function One(result: DAWData) {
     const args = [...arguments].slice(1)
     esconsole("Calling One function", ["debug", "PT"])
+
+    // Remove any existing triangle container and its subscription
+    cleanupTriangle()
 
     const triangleComponent = document.createElement('div')
     triangleComponent.id = 'triangle-container'
@@ -961,11 +967,122 @@ export function One(result: DAWData) {
     // Initial visibility check
     updateTriangleVisibility()
 
-    // Subscribe to state changes
-    store.subscribe(updateTriangleVisibility)
+    // Subscribe to state changes and store the unsubscribe function
+    const unsubscribe = store.subscribe(updateTriangleVisibility)
+    triangleComponent.dataset.unsubscribe = unsubscribe.toString()
 
     return result
 }
+
+export function Setup_Dancer(result: DAWData) {
+    const args = [...arguments].slice(1)
+
+    cleanupDancer()
+
+    const dancerComponent = document.createElement('div')
+    dancerComponent.id = 'dancer-container'
+    dancerComponent.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+    `
+
+    const lottieContainer = document.createElement('div')
+    lottieContainer.style.width = '120px'
+    lottieContainer.style.height = '120px'
+    
+    // Create the lottie animation element
+    const lottieElement = document.createElement('div')
+    lottieElement.id = 'dancer-lottie'
+
+    let lottieUrlCAT = "https://lottie.host/embed/732a8fc4-9814-4308-944d-97bf4800120c/RJj7mf6kK5.lottie"
+    let lottieUrlBALL = "https://lottie.host/d695ad9f-bfc8-40e5-998f-e8294aaae860/zHaLvMjuSC.lottie"
+
+    lottieElement.innerHTML = `
+    <div style="width: 120px; height: 120px;">
+        <iframe 
+            src=${lottieUrlCAT}
+            style="width: 100%; height: 100%; border: none;"
+            title="Dancer Animation">
+        </iframe>
+    </div>
+    `
+
+    lottieContainer.appendChild(lottieElement)
+    dancerComponent.appendChild(lottieContainer)  
+    document.body.appendChild(dancerComponent)
+
+    const updateDancerVisibility = () => {
+        const isPlaying = store.getState().daw.playing
+        dancerComponent.style.opacity = isPlaying ? '1' : '0'
+    }
+
+    // Initial visibility check
+    updateDancerVisibility()
+
+    // Subscribe to state changes and store the unsubscribe function
+    const unsubscribe = store.subscribe(updateDancerVisibility)
+    dancerComponent.dataset.unsubscribe = unsubscribe.toString()
+    
+    return result
+}
+    
+
+
+
+// Helper function to clean up triangle
+function cleanupTriangle() {
+    const existingContainer = document.getElementById('triangle-container')
+    if (existingContainer) {
+        // Get the unsubscribe function from the container's data attribute
+        const unsubscribeStr = existingContainer.dataset.unsubscribe
+        if (unsubscribeStr) {
+            try {
+                const unsubscribe = new Function('return ' + unsubscribeStr)()
+                unsubscribe()
+            } catch (e) {
+                console.error('Error unsubscribing from store:', e)
+            }
+        }
+        existingContainer.remove()
+    }
+}
+
+function cleanupDancer() {
+    const existingContainer = document.getElementById('dancer-container')
+    if (existingContainer) {
+        // Get the unsubscribe function from the container's data attribute
+        const unsubscribeStr = existingContainer.dataset.unsubscribe
+        if (unsubscribeStr) {
+            try {
+                const unsubscribe = new Function('return ' + unsubscribeStr)()
+                unsubscribe()
+            } catch (e) {
+                console.error('Error unsubscribing from store:', e)
+            }
+        }
+        
+        // Clean up lottie instance if it exists
+        const lottieElement = existingContainer.querySelector('#dancer-lottie') as HTMLElement
+        if (lottieElement && lottieElement.dataset.lottieInstance) {
+            try {
+                const lottieInstance = new Function('return ' + lottieElement.dataset.lottieInstance)()
+                if (lottieInstance && typeof lottieInstance.destroy === 'function') {
+                    lottieInstance.destroy()
+                }
+            } catch (e) {
+                console.warn('Error destroying lottie instance:', e)
+            }
+        }
+        
+        existingContainer.remove()
+    }
+}
+
+
 
 const checkArgCount = (funcName: string, args: any[], required: number, total: number) => {
     const given = args.length

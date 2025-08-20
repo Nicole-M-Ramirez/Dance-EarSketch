@@ -1,4 +1,5 @@
 import { fromEntries } from "../esutils"
+//mport { Setup_Dance } from "./passthrough"
 
 export interface APIConfig {
     // Does this API function need to wait for something asynchronous (like fetching a sound)?
@@ -15,11 +16,13 @@ export const API_FUNCTIONS = {
     setTempo: { async: false, mod: true, return: false },
     finish: { async: false, mod: true, return: false },
     fitMedia: { async: false, mod: true, return: false },
+    insertDanceMove: { async: false, mod: true, return: false }, // funtion to insert a dance move
     insertMedia: { async: false, mod: true, return: false },
     makeBeat: { async: false, mod: true, return: false },
     rhythmEffects: { async: false, mod: true, return: false },
     setEffect: { async: false, mod: true, return: false },
     One: { async: false, mod: true, return: false }, // Function to display triangle.png
+    Setup_Dancer: { async: false, mod: true, return: false }, // Function to display triangle.png
     beat:{ async: false, mod: true, return: false}, //funcion que aga print 1 cada 3 beats
     NumPrint: { async: false, mod: false, return: true },
     // Return value, don't modify DAW data.
@@ -166,6 +169,13 @@ const rawDoc: { [key: string]: Item[] } = {
         parameters: {
             sound: "soundConstant",
             track: "integer",
+            start: "float",
+            end: "float",
+        },
+    }],
+    insertDanceMove: [{
+        parameters: {
+            move: "string",
             start: "float",
             end: "float",
         },

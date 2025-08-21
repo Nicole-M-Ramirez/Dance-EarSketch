@@ -23,6 +23,7 @@ import * as user from "../user/userState"
 import store from "../reducers"
 import * as request from "../request"
 import * as player from "../audio/player"
+import { animations } from "../data/Animations"
 
 class ValueError extends Error {
     constructor(message: string | undefined) {
@@ -974,8 +975,10 @@ export function One(result: DAWData) {
     return result
 }
 
-export function Setup_Dancer(result: DAWData) {
+export function Setup_Dancer(result: DAWData, move : string) {
     const args = [...arguments].slice(1)
+
+    checkType("move", "string", move)
 
     cleanupDancer()
 
@@ -983,30 +986,28 @@ export function Setup_Dancer(result: DAWData) {
     dancerComponent.id = 'dancer-container'
     dancerComponent.style.cssText = `
         position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 1000;
+        top: 2%;
+        left: 80%;
+        z-index: 1;
         transition: opacity 0.3s ease;
         opacity: 0;
     `
 
     const lottieContainer = document.createElement('div')
-    lottieContainer.style.width = '120px'
-    lottieContainer.style.height = '120px'
+    lottieContainer.style.width = '200px'
+    lottieContainer.style.height = '200px'
     
     // Create the lottie animation element
     const lottieElement = document.createElement('div')
     lottieElement.id = 'dancer-lottie'
 
-    let lottieUrlCAT = "https://lottie.host/embed/732a8fc4-9814-4308-944d-97bf4800120c/RJj7mf6kK5.lottie"
-    let lottieUrlBALL ="https://lottie.host/embed/d695ad9f-bfc8-40e5-998f-e8294aaae860/zHaLvMjuSC.lottie"
-    let lottieUrlBAR = "https://lottie.host/embed/03732783-cd3b-4b2d-a05d-7a56fe55dcfd/ZCU7z8KctL.lottie"
-    
+    //const key = (move || "").toUpperCase()
+    const lottieURL = animations[move] 
 
     lottieElement.innerHTML = `
-    <div style="width: 120px; height: 120px;">
+    <div style="width: 200px; height: 200px;">
         <iframe 
-            src=${lottieUrlBALL}
+            src="${lottieURL}"
             style="width: 100%; height: 100%; border: none;"
             title="Dancer Animation">
         </iframe>
@@ -1020,6 +1021,7 @@ export function Setup_Dancer(result: DAWData) {
     const updateDancerVisibility = () => {
         const isPlaying = store.getState().daw.playing
         dancerComponent.style.opacity = isPlaying ? '1' : '0'
+        //dancerComponent.style.animationPlayState = 'pause'
     }
 
     // Initial visibility check
@@ -1056,18 +1058,35 @@ function cleanupTriangle() {
 function cleanupDancer() {
     const existingContainer = document.getElementById('dancer-container')
     if (existingContainer) {
-        // Get the unsubscribe function from the container's data attribute
-        const unsubscribeStr = existingContainer.dataset.unsubscribe
-        if (unsubscribeStr) {
-            try {
-                const unsubscribe = new Function('return ' + unsubscribeStr)()
-                unsubscribe()
-            } catch (e) {
-                console.error('Error unsubscribing from store:', e)
+        // Prefer direct property unsubscribe if present
+        const unsubscribeFn = (existingContainer as any)._unsubscribe
+        if (typeof unsubscribeFn === 'function') {
+            try { unsubscribeFn() } catch (e) { console.error('Error unsubscribing from store:', e) }
+        } else {
+            // Backward compatibility: dataset stringified function
+            const unsubscribeStr = existingContainer.dataset.unsubscribe
+            if (unsubscribeStr) {
+                try {
+                    const unsubscribe = new Function('return ' + unsubscribeStr)()
+                    unsubscribe()
+                } catch (e) {
+                    console.error('Error unsubscribing from store:', e)
+                }
             }
         }
         
-        // Clean up lottie instance if it exists
+        // Stop dotlottie-player if present
+        const player = existingContainer.querySelector('dotlottie-player') as any
+        if (player) {
+            try {
+                if (typeof player.pause === 'function') player.pause()
+                if (typeof player.stop === 'function') player.stop()
+            } catch (e) {
+                console.warn('Error stopping lottie player:', e)
+            }
+        }
+        
+        // Clean up legacy lottie instance if it exists
         const lottieElement = existingContainer.querySelector('#dancer-lottie') as HTMLElement
         if (lottieElement && lottieElement.dataset.lottieInstance) {
             try {
